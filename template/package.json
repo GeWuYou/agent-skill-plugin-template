@@ -1,0 +1,34 @@
+{
+  "name": "example-agent-plugin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.3.14",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "bun build ./cli/index.ts --outdir ./dist --target bun && bun ./cli/index.ts build",
+    "test": "bun test",
+    "check": "bun ./cli/index.ts check",
+    "validate": "bun ./cli/index.ts validate",
+    "install": "bun ./cli/index.ts install",
+    "update": "bun ./cli/index.ts update",
+    "uninstall": "bun ./cli/index.ts uninstall",
+    "versions": "bun ./cli/index.ts versions",
+    "doctor": "bun ./cli/index.ts doctor",
+    "sync-project": "bun ./cli/index.ts sync-project",
+    "sync-docs": "bun ./cli/index.ts sync-docs",
+    "migrate": "bun ./cli/index.ts migrate",
+    "package": "bun ./cli/index.ts package",
+    "release:preview": "bun ./cli/index.ts release:preview",
+    "release:prepare": "bun ./cli/index.ts release:prepare"
+  },
+  "devDependencies": {
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/release-notes-generator": "^14.1.0",
+    "@types/bun": "^1.3.14",
+    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "semantic-release": "^24.2.9",
+    "typescript": "^5.9.2",
+    "yaml": "^2.8.1"
+  }
+}

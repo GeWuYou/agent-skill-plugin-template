@@ -1,0 +1,10 @@
+{
+  "name": "example-agent-plugin",
+  "displayName": "Example Agent Plugin",
+  "description": "A portable Agent Skills plugin.",
+  "version": "0.0.0",
+  "author": { "name": "GeWuYou", "url": "https://github.com/GeWuYou" },
+  "repository": "https://github.com/GeWuYou/example-agent-plugin",
+  "license": "MIT",
+  "skills": "./skills/"
+}
