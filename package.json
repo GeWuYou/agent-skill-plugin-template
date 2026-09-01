@@ -1,17 +1,33 @@
 {
-  "name": "@agent-foundry/create-agent-plugin",
-  "version": "1.0.0",
+  "name": "@gewuyou/agent-skill-plugin-template",
+  "version": "0.0.0",
   "private": true,
   "description": "Template and generator for portable Agent Skills plugins.",
   "type": "module",
   "packageManager": "bun@1.3.14",
-  "workspaces": ["generator"],
+  "workspaces": ["generator", "template"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GeWuYou/agent-skill-plugin-template.git"
+  },
   "scripts": {
     "build": "bun run --cwd generator build",
-    "typecheck": "bun run --cwd generator typecheck",
-    "test": "bun run --cwd generator test",
-    "validate": "bun run build && node generator/dist/index.js validate-template",
-    "check": "bun run build && node generator/dist/index.js validate-template"
+    "typecheck": "bun run --cwd generator typecheck && bun run --cwd template typecheck && tsc -p tsconfig.json --noEmit",
+    "test": "bun test generator/test template/tests tests",
+    "validate": "bun run build && bun generator/dist/index.js validate-template",
+    "check": "bun run validate && bun ci/check.ts",
+    "package": "bun ci/package.ts",
+    "release:preview": "bun ci/release.ts preview",
+    "release:prepare": "bun ci/release.ts prepare"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/release-notes-generator": "^14.1.0",
+    "@types/bun": "^1.3.14",
+    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "semantic-release": "^24.2.9",
+    "typescript": "^5.9.2",
+    "yaml": "^2.8.1"
+  }
 }

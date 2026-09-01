@@ -1,5 +1,8 @@
 node_modules/
 generator/dist/
+template/node_modules/
+template/dist/
 dist/
+release-preview.json
 *.tmp
 *.swp

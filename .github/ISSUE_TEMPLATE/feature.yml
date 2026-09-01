@@ -1,0 +1,36 @@
+name: Feature request
+description: Propose an improvement to the Skill plugin template or generator.
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What limitation or workflow problem should this change solve?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected outcome
+      description: Describe the observable behavior and affected platforms.
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - All platforms
+        - Claude
+        - Codex
+        - Universal
+        - Generator or CI only
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add examples, compatibility constraints, or related links.
