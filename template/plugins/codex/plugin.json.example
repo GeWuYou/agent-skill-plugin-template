@@ -1,9 +1,20 @@
 {
   "name": "example-agent-plugin",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "A portable Agent Skills plugin.",
-  "author": { "name": "Agent Foundry" },
-  "repository": "https://example.invalid/example-agent-plugin",
+  "author": { "name": "GeWuYou", "url": "https://github.com/GeWuYou" },
+  "homepage": "https://github.com/GeWuYou/example-agent-plugin",
+  "repository": "https://github.com/GeWuYou/example-agent-plugin",
   "license": "MIT",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Example Agent Plugin",
+    "shortDescription": "A portable Agent Skills plugin.",
+    "longDescription": "A portable Agent Skills plugin.",
+    "developerName": "GeWuYou",
+    "category": "Development",
+    "capabilities": ["Skills"],
+    "defaultPrompt": ["Use Example Agent Plugin to help with this task."],
+    "websiteURL": "https://github.com/GeWuYou/example-agent-plugin"
+  }
 }

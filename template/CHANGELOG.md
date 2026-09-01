@@ -1,5 +1,7 @@
 # Changelog
 
-## 0.1.0
+All stable versions are derived from Conventional Commits by the protected GitHub Release workflow.
 
-- Initial plugin scaffold.
+## Unreleased
+
+- Initial Bun and TypeScript plugin scaffold.

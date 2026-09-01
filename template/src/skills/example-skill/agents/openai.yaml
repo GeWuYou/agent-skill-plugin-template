@@ -1,0 +1,7 @@
+interface:
+  display_name: "Example Skill"
+  short_description: "Verify a generated plugin Skill resource tree"
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.svg"
+  brand_color: "#3B82F6"
+  default_prompt: "Use $example-skill to verify this generated plugin."
