@@ -1,0 +1,21 @@
+{
+  "name": "agent-skill-plugin-template",
+  "version": "1.0.0",
+  "description": "Schema for initializing a portable Agent Skills plugin project.",
+  "required": ["pluginId", "displayName", "description", "authorName", "repositoryUrl"],
+  "properties": {
+    "pluginId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "displayName": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "authorName": { "type": "string", "minLength": 1 },
+    "authorEmail": { "type": "string" },
+    "license": { "type": "string", "default": "MIT" },
+    "repositoryUrl": { "type": "string", "format": "uri" },
+    "homepageUrl": { "type": "string", "format": "uri" },
+    "npmPackageName": { "type": "string" },
+    "packageSlug": { "type": "string" },
+    "version": { "type": "string", "default": "0.1.0" },
+    "defaultSkillPrefix": { "type": "string" },
+    "supportedPlatforms": { "type": "array", "items": { "enum": ["claude", "codex", "universal"] } }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project profile",
+  "type": "object",
+  "schemaVersion": 1,
+  "required": ["version", "project"],
+  "properties": { "version": { "type": "integer", "const": 1 }, "project": { "type": "object" } }
+}

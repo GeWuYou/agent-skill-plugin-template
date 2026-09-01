@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Example contract",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": { "id": { "type": "string" } },
+  "required": ["id"]
+}

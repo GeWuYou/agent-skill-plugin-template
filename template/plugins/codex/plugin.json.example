@@ -1,0 +1,9 @@
+{
+  "name": "example-agent-plugin",
+  "version": "0.1.0",
+  "description": "A portable Agent Skills plugin.",
+  "author": { "name": "Agent Foundry" },
+  "repository": "https://example.invalid/example-agent-plugin",
+  "license": "MIT",
+  "skills": "./skills/"
+}

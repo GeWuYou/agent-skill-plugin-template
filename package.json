@@ -1,0 +1,17 @@
+{
+  "name": "@agent-foundry/create-agent-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Template and generator for portable Agent Skills plugins.",
+  "type": "module",
+  "packageManager": "bun@1.3.14",
+  "workspaces": ["generator"],
+  "scripts": {
+    "build": "bun run --cwd generator build",
+    "typecheck": "bun run --cwd generator typecheck",
+    "test": "bun run --cwd generator test",
+    "validate": "bun run build && node generator/dist/index.js validate-template",
+    "check": "bun run build && node generator/dist/index.js validate-template"
+  },
+  "license": "MIT"
+}
