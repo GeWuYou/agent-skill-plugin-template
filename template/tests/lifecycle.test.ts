@@ -80,6 +80,21 @@ describe("generated project lifecycle", () => {
     await checkProject(root);
   });
 
+  test("uses GeWuYou package defaults and repairs empty capabilities", async () => {
+    const root = await fixture();
+    const configPath = join(root, ".agent-plugin", "config.json");
+    const config = JSON.parse(await readFile(configPath, "utf8"));
+    config.pluginId = "gewuyou-example-plugin";
+    config.capabilities = [];
+    delete config.packageName;
+    delete config.packageSlug;
+    await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`);
+    const { config: resolved } = await buildArtifacts(root);
+    expect(resolved.packageSlug).toBe("example-plugin");
+    expect(resolved.packageName).toBe("@gewuyou/example-plugin");
+    expect(resolved.capabilities).toEqual(["Skills"]);
+  });
+
   test("creates deterministic bundle, checksums, and provenance", async () => {
     const root = await fixture();
     const first = await packageRelease(root, "1.2.3");
@@ -120,6 +135,22 @@ describe("generated project lifecycle", () => {
     await git(root, "commit", "-m", "feat: plugin without baseline");
     expect(previewRelease(root)).rejects.toThrow("Missing baseline tag v0.0.0");
   });
+
+  test("normalizes preview note links to the configured GitHub repository", async () => {
+    const root = await fixture();
+    await git(root, "init", "--initial-branch=main");
+    await git(root, "config", "user.name", "Template Test");
+    await git(root, "config", "user.email", "template@example.invalid");
+    await git(root, "add", ".");
+    await git(root, "commit", "-m", "chore: initialize template");
+    await git(root, "tag", "v0.0.0");
+    await writeFile(join(root, "feature.txt"), "feature\n");
+    await git(root, "add", "feature.txt");
+    await git(root, "commit", "-m", "feat: add a generated feature");
+    const preview = await previewRelease(root);
+    expect(preview.releaseNotes).toContain("https://github.com/example/example-agent-plugin");
+    expect(preview.releaseNotes).not.toMatch(/file:|AppData|semantic-release-preview/i);
+  }, 30_000);
 
   test("calculates the first breaking release from the required baseline", async () => {
     const root = await fixture();

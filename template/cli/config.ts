@@ -51,7 +51,7 @@ function nonEmpty(value: string | undefined): string | undefined {
 }
 
 export function resolveConfig(config: TemplateConfig, versionOverride?: string): ResolvedConfig {
-  const packageSlug = nonEmpty(config.packageSlug) ?? config.pluginId.replace(/^agent-foundry-/, "");
+  const packageSlug = nonEmpty(config.packageSlug) ?? config.pluginId.replace(/^gewuyou-/, "");
   const version = nonEmpty(versionOverride) ?? nonEmpty(config.version) ?? "0.0.0";
   if (!STABLE_VERSION.test(version)) throw new Error(`Invalid stable version: ${version}`);
   const supportedPlatforms = config.supportedPlatforms ?? [...PLATFORMS];
@@ -62,13 +62,14 @@ export function resolveConfig(config: TemplateConfig, versionOverride?: string):
   const suggestedPrompt = `Use ${config.displayName} to help with this task.`;
   const defaultPrompts = config.defaultPrompts?.map((prompt) => prompt.trim()).filter(Boolean)
     ?? [suggestedPrompt.length <= 128 ? suggestedPrompt : "Use this plugin to help with this task."];
+  const capabilities = config.capabilities?.map((capability) => capability.trim()).filter(Boolean) ?? [];
   return {
     ...config,
     authorEmail: nonEmpty(config.authorEmail),
     authorUrl: nonEmpty(config.authorUrl),
     license: nonEmpty(config.license) ?? "MIT",
     homepageUrl: nonEmpty(config.homepageUrl) ?? config.repositoryUrl,
-    packageName: nonEmpty(config.packageName) ?? config.pluginId,
+    packageName: nonEmpty(config.packageName) ?? `@gewuyou/${packageSlug}`,
     packageSlug,
     version,
     defaultSkillPrefix: nonEmpty(config.defaultSkillPrefix) ?? `${packageSlug}-`,
@@ -77,7 +78,7 @@ export function resolveConfig(config: TemplateConfig, versionOverride?: string):
     longDescription: nonEmpty(config.longDescription) ?? config.description,
     developerName: nonEmpty(config.developerName) ?? config.authorName,
     category: nonEmpty(config.category) ?? "Development",
-    capabilities: config.capabilities?.filter(Boolean) ?? ["Skills"],
+    capabilities: capabilities.length ? capabilities : ["Skills"],
     defaultPrompts: defaultPrompts.length ? defaultPrompts : [suggestedPrompt.length <= 128 ? suggestedPrompt : "Use this plugin to help with this task."],
     brandColor: nonEmpty(config.brandColor),
   };

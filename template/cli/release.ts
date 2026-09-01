@@ -58,6 +58,12 @@ async function requireBaseline(root: string): Promise<void> {
   }
 }
 
+function normalizeReleaseNotes(notes: string, configuredRepository: string): string {
+  const webRepository = configuredRepository.replace(/^git\+/, "").replace(/\.git$/, "");
+  if (!/^https:\/\/github\.com\//i.test(webRepository)) return notes;
+  return notes.replace(/https?:\/+[^)\s]+?\/repository(?=\/(?:compare|commit)\/)/g, webRepository);
+}
+
 async function latestVersionTag(root: string): Promise<string> {
   const tags = (await runGit(root, ["tag", "--merged", "HEAD", "--list", "v*", "--sort=-v:refname"]))
     .split(/\r?\n/)
@@ -91,7 +97,7 @@ async function calculate(root: string, dryRun: boolean): Promise<ReleasePreview>
       lastTag: result.lastRelease.gitTag || lastTag,
       nextVersion: result.nextRelease.version,
       nextTag: result.nextRelease.gitTag,
-      releaseNotes: result.nextRelease.notes,
+      releaseNotes: normalizeReleaseNotes(result.nextRelease.notes, config.repositoryUrl),
       triggerSha,
     };
   } finally {
