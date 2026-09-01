@@ -42,6 +42,27 @@ function sha256(path: string): Promise<string> {
   return readFile(path).then((body) => createHash("sha256").update(body).digest("hex"));
 }
 
+async function withPullRequestEnvironment<T>(task: () => Promise<T>): Promise<T> {
+  const keys = ["GITHUB_ACTIONS", "GITHUB_REF", "GITHUB_HEAD_REF", "GITHUB_BASE_REF", "GITHUB_EVENT_NAME"] as const;
+  const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  Object.assign(process.env, {
+    GITHUB_ACTIONS: "true",
+    GITHUB_REF: "refs/pull/1/merge",
+    GITHUB_HEAD_REF: "codex/github-ts-migration",
+    GITHUB_BASE_REF: "main",
+    GITHUB_EVENT_NAME: "pull_request",
+  });
+  try {
+    return await task();
+  } finally {
+    for (const key of keys) {
+      const value = previous[key];
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+}
+
 describe("root release lifecycle", () => {
   test("packages the tracked Git tree deterministically", async () => {
     const root = await repository();
@@ -92,6 +113,20 @@ describe("root release lifecycle", () => {
     expect(preview.lastTag).toBe("v0.0.0");
     expect(preview.nextVersion).toBe("");
     expect(preview.nextTag).toBe("");
+  }, 30_000);
+
+  test("uses controlled main identity when ambient GitHub context is a pull request", async () => {
+    const root = await repository();
+    await git(root, "tag", "v0.0.0");
+    await writeFile(join(root, "breaking.ts"), "export const migration = true;\n");
+    await git(root, "add", ".");
+    await git(root, "commit", "-m", "feat!: migrate the template");
+
+    const preview = await withPullRequestEnvironment(() => previewRelease(root));
+    expect(preview.shouldRelease).toBe(true);
+    expect(preview.lastTag).toBe("v0.0.0");
+    expect(preview.nextVersion).toBe("1.0.0");
+    expect(preview.nextTag).toBe("v1.0.0");
   }, 30_000);
 
   test("calculates, publishes, and safely reuses the first breaking release", async () => {

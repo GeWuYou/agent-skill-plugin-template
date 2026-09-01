@@ -28,11 +28,20 @@ jobs:
           echo "::error::Stable releases must be dispatched from main."
           exit 1
 
-      - name: Checkout the dispatch snapshot
+      - name: Checkout main for the dispatch snapshot
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          ref: ${{ github.sha }}
+          ref: main
+
+      - name: Verify the fixed main snapshot
+        env:
+          DISPATCH_SHA: ${{ github.sha }}
+        run: |
+          git fetch origin +refs/heads/main:refs/remotes/origin/main --tags
+          test "$(git branch --show-current)" = "main"
+          test "$(git rev-parse HEAD)" = "$DISPATCH_SHA"
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
@@ -41,11 +50,6 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Verify main snapshot
-        run: |
-          git fetch origin main --tags
-          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
 
       - name: Preview automatic version
         id: preview
@@ -114,11 +118,20 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout the approved snapshot
+      - name: Checkout main for the approved snapshot
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          ref: ${{ needs.preview.outputs.trigger_sha }}
+          ref: main
+
+      - name: Refetch and verify the approved main snapshot
+        env:
+          EXPECTED_SHA: ${{ needs.preview.outputs.trigger_sha }}
+        run: |
+          git fetch origin +refs/heads/main:refs/remotes/origin/main --tags
+          test "$(git branch --show-current)" = "main"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
@@ -127,11 +140,6 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Refetch main and tags
-        run: |
-          git fetch origin main --tags
-          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
 
       - name: Recalculate and publish approved tag
         env:

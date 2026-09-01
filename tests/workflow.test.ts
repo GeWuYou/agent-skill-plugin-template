@@ -26,9 +26,26 @@ describe("GitHub workflows", () => {
     expect(workflow.jobs.preview.permissions ?? workflow.permissions).toEqual({ contents: "read" });
     expect(workflow.jobs.publish.environment).toBe("release");
     expect(workflow.jobs.publish.permissions.contents).toBe("write");
+    const previewCheckout = workflow.jobs.preview.steps.find((step: Record<string, unknown>) => step.uses === "actions/checkout@v7");
+    const publishCheckout = workflow.jobs.publish.steps.find((step: Record<string, unknown>) => step.uses === "actions/checkout@v7");
+    expect(previewCheckout.with.ref).toBe("main");
+    expect(publishCheckout.with.ref).toBe("main");
+    const previewCommands = workflow.jobs.preview.steps.map((step: Record<string, unknown>) => step.run).filter(Boolean).join("\n");
+    const publishCommands = workflow.jobs.publish.steps.map((step: Record<string, unknown>) => step.run).filter(Boolean).join("\n");
+    expect(previewCommands).toContain('test "$(git rev-parse HEAD)" = "$DISPATCH_SHA"');
+    expect(publishCommands).toContain('test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"');
     expect(body).toContain("release:preview");
     expect(body).toContain("release:prepare");
     expect(body).not.toMatch(/PAT_TOKEN|npm publish|pr-agent/i);
+
+    const generatedBody = await readFile(resolve(root, "template", ".github", "workflows", "release.yml"), "utf8");
+    const generatedWorkflow = parse(generatedBody);
+    const generatedPreviewCheckout = generatedWorkflow.jobs.preview.steps.find((step: Record<string, unknown>) => step.uses === "actions/checkout@v7");
+    const generatedPublishCheckout = generatedWorkflow.jobs.publish.steps.find((step: Record<string, unknown>) => step.uses === "actions/checkout@v7");
+    expect(generatedPreviewCheckout.with.ref).toBe("main");
+    expect(generatedPublishCheckout.with.ref).toBe("main");
+    expect(generatedBody).toContain('test "$(git rev-parse HEAD)" = "$DISPATCH_SHA"');
+    expect(generatedBody).toContain('test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"');
   });
 
   test("root and generated-project workflows are structurally valid", async () => {

@@ -70,6 +70,23 @@ async function latestVersionTag(root: string): Promise<string> {
   return tags[0] ?? "v0.0.0";
 }
 
+function semanticReleaseEnvironment(root: string, triggerSha: string): NodeJS.ProcessEnv {
+  const env = { ...process.env };
+  delete env.GITHUB_BASE_REF;
+  delete env.GITHUB_EVENT_PATH;
+  delete env.GITHUB_HEAD_REF;
+  return {
+    ...env,
+    CI: "true",
+    GITHUB_ACTIONS: "true",
+    GITHUB_EVENT_NAME: "workflow_dispatch",
+    GITHUB_REF: "refs/heads/main",
+    GITHUB_REF_NAME: "main",
+    GITHUB_SHA: triggerSha,
+    GITHUB_WORKSPACE: root,
+  };
+}
+
 async function calculate(root: string, dryRun: boolean): Promise<ReleasePreview> {
   await requireBaseline(root);
   const triggerSha = (await runGit(root, ["rev-parse", "HEAD"])).trim();
@@ -91,7 +108,7 @@ async function calculate(root: string, dryRun: boolean): Promise<ReleasePreview>
       plugins: RELEASE_PLUGINS,
       dryRun,
       ci: false,
-    }, { cwd: root, env: process.env });
+    }, { cwd: root, env: semanticReleaseEnvironment(root, triggerSha) });
     if (!result) return { shouldRelease: false, lastTag, nextVersion: "", nextTag: "", releaseNotes: "", triggerSha };
     return {
       shouldRelease: true,

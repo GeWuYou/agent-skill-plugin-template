@@ -16,6 +16,27 @@ afterEach(async () => {
   await Promise.all(temporaryRoots.splice(0).map((path) => rm(path, { recursive: true, force: true })));
 });
 
+async function withPullRequestEnvironment<T>(task: () => Promise<T>): Promise<T> {
+  const keys = ["GITHUB_ACTIONS", "GITHUB_REF", "GITHUB_HEAD_REF", "GITHUB_BASE_REF", "GITHUB_EVENT_NAME"] as const;
+  const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  Object.assign(process.env, {
+    GITHUB_ACTIONS: "true",
+    GITHUB_REF: "refs/pull/1/merge",
+    GITHUB_HEAD_REF: "feature/generated-plugin",
+    GITHUB_BASE_REF: "main",
+    GITHUB_EVENT_NAME: "pull_request",
+  });
+  try {
+    return await task();
+  } finally {
+    for (const key of keys) {
+      const value = previous[key];
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+}
+
 async function fixture(): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), "agent-skill-plugin-"));
   temporaryRoots.push(root);
@@ -150,6 +171,25 @@ describe("generated project lifecycle", () => {
     const preview = await previewRelease(root);
     expect(preview.releaseNotes).toContain("https://github.com/example/example-agent-plugin");
     expect(preview.releaseNotes).not.toMatch(/file:|AppData|semantic-release-preview/i);
+  }, 30_000);
+
+  test("uses controlled main identity when ambient GitHub context is a pull request", async () => {
+    const root = await fixture();
+    await git(root, "init", "--initial-branch=main");
+    await git(root, "config", "user.name", "Template Test");
+    await git(root, "config", "user.email", "template@example.invalid");
+    await git(root, "add", ".");
+    await git(root, "commit", "-m", "chore: initialize template");
+    await git(root, "tag", "v0.0.0");
+    await writeFile(join(root, "breaking.txt"), "breaking\n");
+    await git(root, "add", "breaking.txt");
+    await git(root, "commit", "-m", "feat!: migrate generated plugin");
+
+    const preview = await withPullRequestEnvironment(() => previewRelease(root));
+    expect(preview.shouldRelease).toBe(true);
+    expect(preview.lastTag).toBe("v0.0.0");
+    expect(preview.nextVersion).toBe("1.0.0");
+    expect(preview.nextTag).toBe("v1.0.0");
   }, 30_000);
 
   test("calculates the first breaking release from the required baseline", async () => {
